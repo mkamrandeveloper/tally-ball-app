@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "904832374500",
+    "project_id": "tally-ball",
+    "storage_bucket": "tally-ball.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:904832374500:android:42c8566a6fc4aacefd3ef1",
+        "android_client_info": {
+          "package_name": "com.example.tally_ball"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "904832374500-1dhree7ea7hgrlmnc9j4ui7bvijna3s3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCV-SGWD09c286NT2tBOWnJcEmjxRmifK0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "904832374500-1dhree7ea7hgrlmnc9j4ui7bvijna3s3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "904832374500-spqeu2o48rmuc9eqoui4l4jpnlut5eb3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.tallyBall"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
