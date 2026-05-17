@@ -4,6 +4,7 @@ import '../../config/theme.dart';
 import '../../widgets/common.dart';
 import '../../services/auth_service.dart';
 import '../../utils/toast_utils.dart';
+import '../../utils/auth_error_handler.dart';
 import '../../services/database_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -19,33 +20,58 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
+  String? _emailError;
   final AuthService _authService = AuthService();
   final DatabaseService _dbService = DatabaseService();
 
+  static final _emailRegex = RegExp(
+    r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$',
+  );
+
+  bool _isValidEmail(String email) => _emailRegex.hasMatch(email.trim());
+
+  void _onEmailChanged(String value) {
+    setState(() {
+      _emailError = value.trim().isEmpty
+          ? null
+          : _isValidEmail(value)
+              ? null
+              : 'Please enter a valid email address';
+    });
+  }
+
   Future<void> _handleEmailLogin() async {
-    if (_emailController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
+    final email = _emailController.text.trim().toLowerCase();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
       if (mounted) TallyToast.showError(context, 'Please fill all fields');
       return;
     }
-    
+    if (!_isValidEmail(email)) {
+      setState(() => _emailError = 'Please enter a valid email address');
+      return;
+    }
+
     setState(() => _isLoading = true);
     try {
       final credential = await _authService.signInWithEmail(
-        _emailController.text.trim(),
-        _passwordController.text.trim(),
+        email,
+        password,
       );
       if (credential != null && mounted) {
-        // Sync profile on login — preserves existing name, only updates lastLogin
+        final user = credential.user!;
+        // Sync profile on login
         await _dbService.createOrUpdateUserProfile(
-          uid: credential.user!.uid,
-          email: credential.user!.email ?? '',
+          uid: user.uid,
+          email: user.email ?? '',
         );
         if (mounted) Navigator.pushReplacementNamed(context, '/home');
       }
     } on FirebaseAuthException catch (e) {
-      if (mounted) TallyToast.showError(context, e.message ?? 'Login failed');
+      if (mounted) TallyToast.showError(context, AuthErrorHandler.message(e));
     } catch (e) {
-      if (mounted) TallyToast.showError(context, 'Error: $e');
+      if (mounted) TallyToast.showError(context, AuthErrorHandler.message(e));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -61,16 +87,13 @@ class _LoginScreenState extends State<LoginScreen> {
           email: credential.user!.email ?? '',
           name: credential.user!.displayName,
         );
+        if (!mounted) return;
         Navigator.pushReplacementNamed(context, '/home');
       }
     } on FirebaseAuthException catch (e) {
-      if (mounted) {
-        if (mounted) TallyToast.showError(context, e.message ?? 'Google Sign-In failed');
-      }
+      if (mounted) TallyToast.showError(context, AuthErrorHandler.message(e));
     } catch (e) {
-      if (mounted) {
-        if (mounted) TallyToast.showError(context, 'Google Sign-In error: $e');
-      }
+      if (mounted) TallyToast.showError(context, AuthErrorHandler.message(e));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -100,7 +123,7 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 300,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: context.colors.precisionBlue.withOpacity(0.08),
+                color: context.colors.precisionBlue.withValues(alpha: 0.08),
               ),
             ),
           ).animate().fadeIn(duration: 1000.ms).scale(begin: const Offset(0.8, 0.8)),
@@ -120,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: context.colors.precisionBlue.withOpacity(0.2),
+                            color: context.colors.precisionBlue.withValues(alpha: 0.2),
                             blurRadius: 20,
                             spreadRadius: 2,
                           ),
@@ -157,7 +180,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 32),
 
                   GlassCard(
-                    borderColor: context.colors.precisionBlue.withOpacity(0.2),
+                    borderColor: context.colors.precisionBlue.withValues(alpha: 0.2),
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -167,6 +190,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           hint: 'your@email.com',
                           prefixIcon: Icons.email_outlined,
                           controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          errorText: _emailError,
+                          onChanged: _onEmailChanged,
                         ),
                         const SizedBox(height: 16),
                         Row(
@@ -216,12 +242,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   
                   Row(
                     children: [
-                      Expanded(child: Divider(color: context.colors.border.withOpacity(0.5))),
+                      Expanded(child: Divider(color: context.colors.border.withValues(alpha: 0.5))),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Text('OR JOIN THE SQUAD', style: TallyTextStyles.label(context).copyWith(fontSize: 10)),
+                        child: Text('Create new account?', style: TallyTextStyles.label(context).copyWith(fontSize: 10)),
                       ),
-                      Expanded(child: Divider(color: context.colors.border.withOpacity(0.5))),
+                      Expanded(child: Divider(color: context.colors.border.withValues(alpha: 0.5))),
                     ],
                   ).animate().fadeIn(delay: 900.ms),
 

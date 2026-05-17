@@ -14,15 +14,9 @@ class GameStructureScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: context.colors.bgPrimary,
       appBar: AppBar(
-        title: const Text('TALLY BALL'),
-        titleTextStyle: TallyTextStyles.heading2(context).copyWith(color: context.colors.precisionBlue, fontStyle: FontStyle.italic),
+        title: const TallyLogo(height: 36),
+        centerTitle: true,
         leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context)),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: CircleAvatar(radius: 18, backgroundColor: context.colors.bgCard, child: Icon(Icons.person, size: 20, color: context.colors.textSecondary)),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20),

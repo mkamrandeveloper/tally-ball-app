@@ -4,6 +4,7 @@ import '../../widgets/common.dart';
 import '../../services/auth_service.dart';
 import '../../services/database_service.dart';
 import '../../utils/toast_utils.dart';
+import '../../utils/auth_error_handler.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
   const ProfileSetupScreen({super.key});
@@ -45,7 +46,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         }
       }
     } catch (e) {
-      if (mounted) TallyToast.showError(context, 'Error saving profile: $e');
+      if (mounted) TallyToast.showError(context, AuthErrorHandler.message(e));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -84,7 +85,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     children: [
                       const SizedBox(height: 32),
                       GlassCard(
-                        borderColor: context.colors.precisionBlue.withOpacity(0.3),
+                        borderColor: context.colors.precisionBlue.withValues(alpha: 0.3),
                         child: Column(
                           children: [
                             Icon(Icons.gps_fixed, color: context.colors.precisionBlue, size: 36),
@@ -130,7 +131,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                                         Icon(Icons.calendar_today, color: context.colors.textTertiary, size: 20),
                                         const SizedBox(width: 12),
                                         Text(
-                                          _dob != null ? '${_dob!.month}/${_dob!.day}/${_dob!.year}' : 'mm/dd/yyyy',
+                                          _dob != null ? '${_dob!.day.toString().padLeft(2, '0')}/${_dob!.month.toString().padLeft(2, '0')}/${_dob!.year}' : 'DD/MM/YYYY',
                                           style: TextStyle(
                                             color: _dob != null ? context.colors.textPrimary : context.colors.textTertiary,
                                             fontSize: 14,
@@ -195,7 +196,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               surface: context.colors.bgCard,
               onSurface: context.colors.textPrimary,
             ),
-            dialogBackgroundColor: context.colors.bgCard,
+            dialogTheme: DialogThemeData(backgroundColor: context.colors.bgCard),
           ),
           child: child!,
         );

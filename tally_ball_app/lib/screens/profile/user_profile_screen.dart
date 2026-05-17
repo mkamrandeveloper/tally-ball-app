@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'dart:io';
 import '../../config/theme.dart';
 import '../../widgets/common.dart';
 import '../../services/auth_service.dart';
 import '../../services/database_service.dart';
 import '../../utils/toast_utils.dart';
+import '../../utils/auth_error_handler.dart';
 
 class UserProfileScreen extends StatefulWidget {
   final bool useScaffold;
@@ -21,8 +19,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   final AuthService _authService = AuthService();
   final DatabaseService _dbService = DatabaseService();
 
-  Map<String, dynamic>? _userProfile;
-  bool _isLoading = false;
 
   @override
   void initState() {
@@ -71,41 +67,17 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           );
         } catch (e) {
           if (mounted) {
-            TallyToast.showError(context, 'Error updating name: $e');
+            TallyToast.showError(context, AuthErrorHandler.message(e));
           }
         }
       }
     }
   }
 
-  Future<void> _pickAndUploadImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
-    
-    if (image != null) {
-      final user = _authService.currentUser;
-      if (user != null) {
-        setState(() => _isLoading = true);
-        try {
-          final storageRef = FirebaseStorage.instance
-              .ref()
-              .child('user_profiles')
-              .child('${user.uid}.jpg');
-          
-          await storageRef.putFile(File(image.path));
-          final downloadUrl = await storageRef.getDownloadURL();
-          
-          await _dbService.updateProfileImage(uid: user.uid, imageUrl: downloadUrl);
-          if (mounted) setState(() => _isLoading = false);
-        } catch (e) {
-          if (mounted) {
-            setState(() => _isLoading = false);
-            TallyToast.showError(context, 'Upload failed: $e');
-          }
-        }
-      }
-    }
-  }
+  // 📦 Profile photo upload is disabled until Firebase Storage is enabled.
+  // To re-enable: set up Storage in Firebase Console and uncomment this method.
+  //
+  // Future<void> _pickAndUploadImage() async { ... }
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +87,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
       stream: FirebaseFirestore.instance.collection('users').doc(user.uid).snapshots(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting || _isLoading) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator(color: context.colors.precisionBlue));
         }
 
@@ -130,24 +102,17 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           child: Column(
             children: [
               Center(
-                child: GestureDetector(
-                  onTap: _pickAndUploadImage,
-                  child: Stack(
-                    alignment: Alignment.bottomRight,
-                    children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundColor: context.colors.bgCardLight,
-                        backgroundImage: profileImageUrl != null ? NetworkImage(profileImageUrl) : null,
-                        child: profileImageUrl == null ? Icon(Icons.person, size: 50, color: context.colors.textSecondary) : null,
-                      ),
-                      CircleAvatar(
-                        radius: 16,
-                        backgroundColor: context.colors.precisionBlue,
-                        child: Icon(Icons.camera_alt, size: 16, color: context.colors.textPrimary),
-                      ),
-                    ],
-                  ),
+                // Camera badge hidden until Firebase Storage is set up
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundColor: context.colors.bgCardLight,
+                  backgroundImage: profileImageUrl != null
+                      ? NetworkImage(profileImageUrl)
+                      : null,
+                  child: profileImageUrl == null
+                      ? Icon(Icons.person,
+                          size: 50, color: context.colors.textSecondary)
+                      : null,
                 ),
               ),
               const SizedBox(height: 16),

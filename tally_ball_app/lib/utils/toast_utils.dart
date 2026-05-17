@@ -23,7 +23,6 @@ class TallyToast {
         color = context.colors.persistentRed;
         break;
       case ToastType.info:
-      default:
         icon = Icons.info_outline;
         color = context.colors.precisionBlue;
         break;
@@ -40,12 +39,12 @@ class TallyToast {
       content: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
-          color: context.colors.bgCardLight.withOpacity(0.95),
+          color: context.colors.bgCardLight.withValues(alpha: 0.95),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.15),
+              color: color.withValues(alpha: 0.15),
               blurRadius: 20,
               offset: const Offset(0, 10),
             )
@@ -56,7 +55,7 @@ class TallyToast {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: color, size: 24),

@@ -61,9 +61,8 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
     return Scaffold(
       backgroundColor: context.colors.bgPrimary,
       appBar: AppBar(
-        title: Text('LIVE MATCH',
-          style: TallyTextStyles.heading2(context).copyWith(
-            color: context.colors.precisionBlue, fontStyle: FontStyle.italic)),
+        title: const TallyLogo(height: 36),
+        centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -71,9 +70,6 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
             Navigator.pop(context);
           },
         ),
-        actions: [
-          IconButton(icon: const Icon(Icons.settings), onPressed: () {}),
-        ],
       ),
       body: Stack(
         children: [
@@ -82,7 +78,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
             child: Image.asset('assets/images/pitch_grass.png', fit: BoxFit.cover),
           ),
           Positioned.fill(
-            child: Container(color: context.colors.bgPrimary.withOpacity(0.88)),
+            child: Container(color: context.colors.bgPrimary.withValues(alpha: 0.88)),
           ),
 
           // ─── Main Layout ───
@@ -113,11 +109,11 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
                             color: game.isTeamATurn
-                                ? context.colors.precisionBlue25.withOpacity(0.3)
-                                : context.colors.precisionBlue25.withOpacity(0.1),
+                                ? context.colors.precisionBlue25.withValues(alpha: 0.3)
+                                : context.colors.precisionBlue25.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                             border: game.isTeamATurn
-                                ? Border.all(color: context.colors.precisionBlue.withOpacity(0.5), width: 1.5)
+                                ? Border.all(color: context.colors.precisionBlue.withValues(alpha: 0.5), width: 1.5)
                                 : null,
                           ),
                           child: Column(
@@ -163,9 +159,9 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                               decoration: BoxDecoration(
-                                color: context.colors.optimisticYellow.withOpacity(0.1),
+                                color: context.colors.optimisticYellow.withValues(alpha: 0.1),
                                 border: Border.all(
-                                  color: context.colors.optimisticYellow.withOpacity(0.5)),
+                                  color: context.colors.optimisticYellow.withValues(alpha: 0.5)),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(game.timerDisplay,
@@ -183,11 +179,11 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
                             color: !game.isTeamATurn
-                                ? context.colors.persistentRed25.withOpacity(0.3)
-                                : context.colors.persistentRed25.withOpacity(0.1),
+                                ? context.colors.persistentRed25.withValues(alpha: 0.3)
+                                : context.colors.persistentRed25.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                             border: !game.isTeamATurn
-                                ? Border.all(color: context.colors.persistentRed.withOpacity(0.5), width: 1.5)
+                                ? Border.all(color: context.colors.persistentRed.withValues(alpha: 0.5), width: 1.5)
                                 : null,
                           ),
                           child: Column(
@@ -232,13 +228,13 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
                   color: game.isTeamATurn
-                      ? context.colors.precisionBlue.withOpacity(0.12)
-                      : context.colors.persistentRed.withOpacity(0.12),
+                      ? context.colors.precisionBlue.withValues(alpha: 0.12)
+                      : context.colors.persistentRed.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: game.isTeamATurn
-                        ? context.colors.precisionBlue.withOpacity(0.4)
-                        : context.colors.persistentRed.withOpacity(0.4),
+                        ? context.colors.precisionBlue.withValues(alpha: 0.4)
+                        : context.colors.persistentRed.withValues(alpha: 0.4),
                   ),
                 ),
                 child: Row(
@@ -257,7 +253,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            '${game.activeTeamName} — SHOOT!',
+                            '${game.activeTeamName}, make it count!',
                             style: TallyTextStyles.heading3(context).copyWith(
                               color: game.isTeamATurn
                                   ? context.colors.precisionBlue
@@ -265,7 +261,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
                               fontSize: 14),
                             overflow: TextOverflow.ellipsis,
                           ),
-                          Text('1 minute per shot · miss = turn switch',
+                          Text('1 min per shot · miss = turn switch',
                             style: TallyTextStyles.bodySmall(context).copyWith(fontSize: 10)),
                         ],
                       ),
@@ -283,8 +279,9 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
                 ),
               ),
 
-              // ── Target Diagram (fills remaining space) ──
-              Expanded(
+              // ── Target Diagram (fixed 260 px — same on all screens) ──
+              SizedBox(
+                height: 260,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 6),
                   child: TargetDiagram(highlightedZone: game.lastHitZone),
@@ -361,7 +358,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
             Positioned.fill(
               child: IgnorePointer(
                 child: Container(
-                  color: context.colors.persistentRed.withOpacity(0.15),
+                  color: context.colors.persistentRed.withValues(alpha: 0.15),
                   child: Center(
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
@@ -371,7 +368,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
                         border: Border.all(color: context.colors.persistentRed, width: 2),
                         boxShadow: [
                           BoxShadow(
-                            color: context.colors.persistentRed.withOpacity(0.3),
+                            color: context.colors.persistentRed.withValues(alpha: 0.3),
                             blurRadius: 30, spreadRadius: 5),
                         ],
                       ),
@@ -400,7 +397,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
             Positioned.fill(
               child: IgnorePointer(
                 child: Container(
-                  color: context.colors.bgPrimary.withOpacity(0.85),
+                  color: context.colors.bgPrimary.withValues(alpha: 0.85),
                   child: Center(
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 32),
@@ -408,10 +405,10 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
                         color: context.colors.bgCard,
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                          color: context.colors.optimisticYellow.withOpacity(0.5), width: 2),
+                          color: context.colors.optimisticYellow.withValues(alpha: 0.5), width: 2),
                         boxShadow: [
                           BoxShadow(
-                            color: context.colors.optimisticYellow.withOpacity(0.15),
+                            color: context.colors.optimisticYellow.withValues(alpha: 0.15),
                             blurRadius: 40, spreadRadius: 8),
                         ],
                       ),
@@ -580,7 +577,7 @@ class _ShotCountdownRing extends StatelessWidget {
               Text('$seconds',
                 style: TextStyle(
                   fontSize: 14, fontWeight: FontWeight.bold, color: color)),
-              Text('s', style: TextStyle(fontSize: 9, color: color.withOpacity(0.7))),
+              Text('s', style: TextStyle(fontSize: 9, color: color.withValues(alpha: 0.7))),
             ],
           ),
         ],
@@ -602,9 +599,9 @@ class _ScorePill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

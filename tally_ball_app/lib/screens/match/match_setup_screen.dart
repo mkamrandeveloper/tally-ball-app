@@ -21,15 +21,9 @@ class _MatchSetupScreenState extends State<MatchSetupScreen> {
     return Scaffold(
       backgroundColor: context.colors.bgPrimary,
       appBar: AppBar(
-        title: const Text('TALLY BALL'),
-        titleTextStyle: TallyTextStyles.heading2(context).copyWith(color: context.colors.precisionBlue, fontStyle: FontStyle.italic),
+        title: const TallyLogo(height: 36),
+        centerTitle: true,
         leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context)),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: CircleAvatar(radius: 18, backgroundColor: context.colors.bgCard, child: Icon(Icons.person, size: 20, color: context.colors.textSecondary)),
-          ),
-        ],
       ),
       body: Stack(
         children: [
@@ -41,7 +35,7 @@ class _MatchSetupScreenState extends State<MatchSetupScreen> {
           ),
           Positioned.fill(
             child: Container(
-              color: context.colors.bgPrimary.withOpacity(0.85),
+              color: context.colors.bgPrimary.withValues(alpha: 0.85),
             ),
           ),
           SingleChildScrollView(
@@ -59,9 +53,9 @@ class _MatchSetupScreenState extends State<MatchSetupScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
                   decoration: BoxDecoration(
-                    color: context.colors.precisionBlue25.withOpacity(0.3),
+                    color: context.colors.precisionBlue25.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: context.colors.precisionBlue.withOpacity(0.3)),
+                    border: Border.all(color: context.colors.precisionBlue.withValues(alpha: 0.3)),
                   ),
                   child: Column(
                     children: [
@@ -75,7 +69,7 @@ class _MatchSetupScreenState extends State<MatchSetupScreen> {
                         style: TallyTextStyles.heading1(context).copyWith(color: context.colors.precisionBlue),
                         decoration: InputDecoration(
                           border: InputBorder.none,
-                          enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: context.colors.precisionBlue.withOpacity(0.3))),
+                          enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: context.colors.precisionBlue.withValues(alpha: 0.3))),
                           focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: context.colors.precisionBlue)),
                           filled: false,
                         ),
@@ -90,8 +84,8 @@ class _MatchSetupScreenState extends State<MatchSetupScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   decoration: BoxDecoration(
-                    color: context.colors.optimisticYellow.withOpacity(0.1),
-                    border: Border.all(color: context.colors.optimisticYellow.withOpacity(0.3)),
+                    color: context.colors.optimisticYellow.withValues(alpha: 0.1),
+                    border: Border.all(color: context.colors.optimisticYellow.withValues(alpha: 0.3)),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text('VS', style: TallyTextStyles.heading2(context).copyWith(color: context.colors.optimisticYellow, fontStyle: FontStyle.italic)),
@@ -102,9 +96,9 @@ class _MatchSetupScreenState extends State<MatchSetupScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
                   decoration: BoxDecoration(
-                    color: context.colors.persistentRed25.withOpacity(0.3),
+                    color: context.colors.persistentRed25.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: context.colors.persistentRed.withOpacity(0.3)),
+                    border: Border.all(color: context.colors.persistentRed.withValues(alpha: 0.3)),
                   ),
                   child: Column(
                     children: [
@@ -118,7 +112,7 @@ class _MatchSetupScreenState extends State<MatchSetupScreen> {
                         style: TallyTextStyles.heading1(context).copyWith(color: context.colors.persistentRed),
                         decoration: InputDecoration(
                           border: InputBorder.none,
-                          enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: context.colors.persistentRed.withOpacity(0.3))),
+                          enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: context.colors.persistentRed.withValues(alpha: 0.3))),
                           focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: context.colors.persistentRed)),
                           filled: false,
                         ),
@@ -132,7 +126,7 @@ class _MatchSetupScreenState extends State<MatchSetupScreen> {
                 TallyButton(
                   text: 'NEXT PHASE',
                   icon: Icons.arrow_forward,
-                  color: context.colors.precisionBlue.withOpacity(0.8),
+                  color: context.colors.precisionBlue.withValues(alpha: 0.8),
                   onPressed: () {
                     if (_teamAController.text.isEmpty) game.setTeamAName('TEAM A');
                     if (_teamBController.text.isEmpty) game.setTeamBName('TEAM B');

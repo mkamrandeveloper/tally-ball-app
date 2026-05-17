@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../config/theme.dart';
 import '../../widgets/common.dart';
-import '../../widgets/common.dart';
 import '../../widgets/target_diagram.dart';
 import '../../models/game_models.dart';
 import '../../services/game_service.dart';
@@ -29,15 +28,9 @@ class _TargetSetupScreenState extends State<TargetSetupScreen> {
     return Scaffold(
       backgroundColor: context.colors.bgPrimary,
       appBar: AppBar(
-        title: const Text('PRACTICE_MODE'),
-        titleTextStyle: TallyTextStyles.heading3(context).copyWith(color: context.colors.precisionBlue),
+        title: const TallyLogo(height: 36),
+        centerTitle: true,
         leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context)),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: CircleAvatar(radius: 18, backgroundColor: context.colors.bgCard, child: Icon(Icons.person, size: 20, color: context.colors.textSecondary)),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -54,9 +47,9 @@ class _TargetSetupScreenState extends State<TargetSetupScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: context.colors.optimisticYellow.withOpacity(0.08),
+                  color: context.colors.optimisticYellow.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: context.colors.optimisticYellow.withOpacity(0.3)),
+                  border: Border.all(color: context.colors.optimisticYellow.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
@@ -85,7 +78,7 @@ class _TargetSetupScreenState extends State<TargetSetupScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            const TargetDiagram(height: 250),
+            const TargetDiagram(height: 260),
             const SizedBox(height: 24),
             Text('SESSION TALLY TARGET', style: TallyTextStyles.label(context)),
             const SizedBox(height: 12),
@@ -103,7 +96,7 @@ class _TargetSetupScreenState extends State<TargetSetupScreen> {
                   onTap: () => game.setSessionTarget(target),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: isSelected ? context.colors.precisionBlue.withOpacity(0.1) : context.colors.bgCard,
+                      color: isSelected ? context.colors.precisionBlue.withValues(alpha: 0.1) : context.colors.bgCard,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: isSelected ? context.colors.precisionBlue : context.colors.border,

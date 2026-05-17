@@ -63,7 +63,7 @@ class _HardwareConnectionScreenState extends State<HardwareConnectionScreen> {
     } catch (e) {
       if (mounted) {
         Navigator.pop(context); // Close loading
-        TallyToast.showError(context, 'Connection failed: $e');
+        TallyToast.showError(context, 'Unable to connect. Please try again.');
       }
     }
   }
@@ -99,7 +99,7 @@ class _HardwareConnectionScreenState extends State<HardwareConnectionScreen> {
                     height: 180,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: context.colors.precisionBlue25.withOpacity(0.2),
+                      color: context.colors.precisionBlue25.withValues(alpha: 0.2),
                     ),
                   ),
                   if (_isScanning)
@@ -109,7 +109,7 @@ class _HardwareConnectionScreenState extends State<HardwareConnectionScreen> {
                       child: CircularProgressIndicator(
                         strokeWidth: 3,
                         valueColor: AlwaysStoppedAnimation(context.colors.precisionBlue),
-                        backgroundColor: context.colors.precisionBlue25.withOpacity(0.3),
+                        backgroundColor: context.colors.precisionBlue25.withValues(alpha: 0.3),
                       ),
                     ),
                   Container(
@@ -117,7 +117,7 @@ class _HardwareConnectionScreenState extends State<HardwareConnectionScreen> {
                     height: 100,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: context.colors.precisionBlue.withOpacity(0.1),
+                      color: context.colors.precisionBlue.withValues(alpha: 0.1),
                     ),
                     child: Icon(_isScanning ? Icons.bluetooth_searching : Icons.bluetooth, 
                       size: 48, color: context.colors.precisionBlue),
@@ -157,9 +157,9 @@ class _HardwareConnectionScreenState extends State<HardwareConnectionScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                           decoration: BoxDecoration(
-                            color: context.colors.precisionBlue25.withOpacity(0.15),
+                            color: context.colors.precisionBlue25.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: context.colors.precisionBlue.withOpacity(0.1)),
+                            border: Border.all(color: context.colors.precisionBlue.withValues(alpha: 0.1)),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -169,7 +169,7 @@ class _HardwareConnectionScreenState extends State<HardwareConnectionScreen> {
                                   Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: context.colors.precisionBlue.withOpacity(0.1),
+                                      color: context.colors.precisionBlue.withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Icon(Icons.gps_fixed, color: context.colors.precisionBlue, size: 20),

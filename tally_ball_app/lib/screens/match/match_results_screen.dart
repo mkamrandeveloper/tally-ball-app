@@ -18,7 +18,7 @@ class MatchResultsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: context.colors.bgPrimary,
       appBar: AppBar(
-        title: const Text('MATCH_REPORT'),
+        title: const Text('MATCH REPORT'),
         titleTextStyle: TallyTextStyles.heading3(context).copyWith(color: context.colors.precisionBlue),
         leading: IconButton(
           icon: const Icon(Icons.close),
@@ -32,7 +32,7 @@ class MatchResultsScreen extends StatelessWidget {
             const SizedBox(height: 16),
             // Winner Card
             GlassCard(
-              borderColor: winnerColor.withOpacity(0.3),
+              borderColor: winnerColor.withValues(alpha: 0.3),
               padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
               child: Column(
                 children: [
@@ -79,13 +79,62 @@ class MatchResultsScreen extends StatelessWidget {
             // Team B Breakdown
             _teamBreakdown(context, game.teamBName, context.colors.persistentRed, game),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 28),
+
+            // ── Primary: STORE session ──
             TallyButton(
-              text: 'RETURN TO HQ',
-              icon: Icons.home,
+              text: 'STORE & RETURN HOME',
+              icon: Icons.save_alt,
               onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/home', (r) => false),
             ),
-            const SizedBox(height: 32),
+
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(child: Divider(color: context.colors.border)),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Text('OR', style: TallyTextStyles.bodySmall(context).copyWith(color: context.colors.textTertiary)),
+                ),
+                Expanded(child: Divider(color: context.colors.border)),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // ── Secondary: DELETE session (outlined, destructive) ──
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () async {
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      backgroundColor: context.colors.bgCard,
+                      title: Text('Delete Match?', style: TallyTextStyles.heading3(context)),
+                      content: Text('This match will NOT be saved to history.', style: TallyTextStyles.bodyMedium(context)),
+                      actions: [
+                        TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('CANCEL')),
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, true),
+                          child: Text('DELETE', style: TextStyle(color: context.colors.persistentRed, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirmed == true && context.mounted) {
+                    Navigator.pushNamedAndRemoveUntil(context, '/home', (r) => false);
+                  }
+                },
+                icon: Icon(Icons.delete_outline, color: context.colors.persistentRed, size: 20),
+                label: Text('DELETE SESSION', style: TallyTextStyles.button(context).copyWith(color: context.colors.persistentRed)),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: context.colors.persistentRed.withValues(alpha: 0.6), width: 1.5),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 36),
           ],
         ),
       ),

@@ -12,7 +12,7 @@ class DatabaseService {
   }) async {
     try {
       final userRef = _firestore.collection('users').doc(uid);
-      final docSnapshot = await userRef.get();
+      final docSnapshot = await userRef.get().timeout(const Duration(seconds: 10));
 
       if (!docSnapshot.exists) {
         // ── New account: create full document ──
@@ -25,7 +25,7 @@ class DatabaseService {
           'totalXP': 0,
           'gamesPlayed': 0,
           if (extraData != null) ...extraData,
-        });
+        }).timeout(const Duration(seconds: 10));
       } else {
         // ── Existing account: only overwrite fields we have new data for ──
         final Map<String, dynamic> updateData = {
@@ -35,7 +35,7 @@ class DatabaseService {
         // Only update name when explicitly provided (Google login / profile setup)
         if (name != null) updateData['name'] = name;
         if (extraData != null) updateData.addAll(extraData);
-        await userRef.update(updateData);
+        await userRef.update(updateData).timeout(const Duration(seconds: 10));
       }
     } catch (e) {
       rethrow;
@@ -45,7 +45,7 @@ class DatabaseService {
   // Fetch user profile
   Future<Map<String, dynamic>?> getUserProfile(String uid) async {
     try {
-      final docSnapshot = await _firestore.collection('users').doc(uid).get();
+      final docSnapshot = await _firestore.collection('users').doc(uid).get().timeout(const Duration(seconds: 10));
       if (docSnapshot.exists) {
         return docSnapshot.data();
       }
@@ -63,7 +63,7 @@ class DatabaseService {
     try {
       await _firestore.collection('users').doc(uid).update({
         'name': newName,
-      });
+      }).timeout(const Duration(seconds: 10));
     } catch (e) {
       rethrow;
     }
@@ -77,7 +77,7 @@ class DatabaseService {
     try {
       await _firestore.collection('users').doc(uid).update({
         'profileImageUrl': imageUrl,
-      });
+      }).timeout(const Duration(seconds: 10));
     } catch (e) {
       rethrow;
     }
@@ -96,7 +96,7 @@ class DatabaseService {
           .add({
         ...sessionData,
         'timestamp': FieldValue.serverTimestamp(),
-      });
+      }).timeout(const Duration(seconds: 10));
       
       // Also update total stats on the user document
       final userRef = _firestore.collection('users').doc(uid);
@@ -110,7 +110,7 @@ class DatabaseService {
             'gamesPlayed': currentGames + 1,
           });
         }
-      });
+      }).timeout(const Duration(seconds: 10));
     } catch (e) {
       rethrow;
     }
@@ -124,5 +124,24 @@ class DatabaseService {
         .collection('sessions')
         .orderBy('timestamp', descending: true)
         .snapshots();
+  }
+
+  /// Deletes the most recently stored session for the given user.
+  Future<void> deleteLastSession(String uid) async {
+    try {
+      final snap = await _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('sessions')
+          .orderBy('timestamp', descending: true)
+          .limit(1)
+          .get()
+          .timeout(const Duration(seconds: 10));
+      if (snap.docs.isNotEmpty) {
+        await snap.docs.first.reference.delete().timeout(const Duration(seconds: 10));
+      }
+    } catch (e) {
+      rethrow;
+    }
   }
 }

@@ -4,6 +4,7 @@ import '../../config/theme.dart';
 import '../../widgets/common.dart';
 import '../../services/auth_service.dart';
 import '../../utils/toast_utils.dart';
+import '../../utils/auth_error_handler.dart';
 import '../../services/database_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -19,36 +20,64 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
+  String? _emailError;
   final AuthService _authService = AuthService();
   final DatabaseService _dbService = DatabaseService();
 
+  static final _emailRegex = RegExp(
+    r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$',
+  );
+
+  bool _isValidEmail(String email) => _emailRegex.hasMatch(email.trim());
+
+  void _onEmailChanged(String value) {
+    setState(() {
+      _emailError = value.trim().isEmpty
+          ? null
+          : _isValidEmail(value)
+              ? null
+              : 'Please enter a valid email address';
+    });
+  }
+
   Future<void> _handleEmailSignup() async {
-    if (_emailController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
+    final email = _emailController.text.trim().toLowerCase();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
       if (mounted) TallyToast.showError(context, 'Please fill all fields');
       return;
     }
-    
+    if (!_isValidEmail(email)) {
+      setState(() => _emailError = 'Please enter a valid email address');
+      return;
+    }
+
     setState(() => _isLoading = true);
     try {
       final credential = await _authService.signUpWithEmail(
-        _emailController.text.trim(),
-        _passwordController.text.trim(),
+        email,
+        password,
       );
       if (credential != null && mounted) {
+        // Send verification email
+        try {
+          await credential.user!.sendEmailVerification();
+        } catch (emailError) {
+          // Silent catch for production — user can resend from the verify screen
+        }
+
         await _dbService.createOrUpdateUserProfile(
           uid: credential.user!.uid,
           email: credential.user!.email ?? '',
         );
-        Navigator.pushReplacementNamed(context, '/profile-setup');
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, '/verify-email');
       }
     } on FirebaseAuthException catch (e) {
-      if (mounted) {
-        if (mounted) TallyToast.showError(context, e.message ?? 'Signup failed');
-      }
+      if (mounted) TallyToast.showError(context, AuthErrorHandler.message(e));
     } catch (e) {
-      if (mounted) {
-        if (mounted) TallyToast.showError(context, 'Error: $e');
-      }
+      if (mounted) TallyToast.showError(context, AuthErrorHandler.message(e));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -64,16 +93,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
           email: credential.user!.email ?? '',
           name: credential.user!.displayName,
         );
+        if (!mounted) return;
         Navigator.pushReplacementNamed(context, '/profile-setup');
       }
     } on FirebaseAuthException catch (e) {
-      if (mounted) {
-        if (mounted) TallyToast.showError(context, e.message ?? 'Google Sign-In failed');
-      }
+      if (mounted) TallyToast.showError(context, AuthErrorHandler.message(e));
     } catch (e) {
-      if (mounted) {
-        if (mounted) TallyToast.showError(context, 'Google Sign-In error: $e');
-      }
+      if (mounted) TallyToast.showError(context, AuthErrorHandler.message(e));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -103,7 +129,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               height: 300,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: context.colors.persistentRed.withOpacity(0.05),
+                color: context.colors.persistentRed.withValues(alpha: 0.05),
               ),
             ),
           ).animate().fadeIn(duration: 1000.ms).scale(begin: const Offset(0.8, 0.8)),
@@ -132,7 +158,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: context.colors.persistentRed.withOpacity(0.2),
+                            color: context.colors.persistentRed.withValues(alpha: 0.2),
                             blurRadius: 20,
                             spreadRadius: 2,
                           ),
@@ -169,16 +195,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   const SizedBox(height: 24),
 
                   GlassCard(
-                    borderColor: context.colors.persistentRed.withOpacity(0.2),
+                    borderColor: context.colors.persistentRed.withValues(alpha: 0.2),
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         TallyTextField(
-                          label: 'EMAIL OR MOBILE',
+                          label: 'EMAIL',
                           hint: 'athlete@tallyball.com',
                           prefixIcon: Icons.email_outlined,
                           controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          errorText: _emailError,
+                          onChanged: _onEmailChanged,
                         ),
                         const SizedBox(height: 16),
                         TallyTextField(
@@ -208,7 +237,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                   const SizedBox(height: 24),
                   
-                  Text('QUICK CONNECT', style: TallyTextStyles.label(context).copyWith(fontSize: 10)),
                   const SizedBox(height: 12),
                   Row(
                     children: [
@@ -228,7 +256,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         style: TallyTextStyles.bodyMedium(context),
                         children: [
                           TextSpan(
-                            text: 'Login Sequence',
+                            text: 'Log in',
                             style: TallyTextStyles.bodyMedium(context).copyWith(
                               color: context.colors.persistentRed,
                               fontWeight: FontWeight.bold,

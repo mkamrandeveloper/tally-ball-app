@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../config/theme.dart';
@@ -105,7 +104,7 @@ class _LivePracticeScreenState extends State<LivePracticeScreen>
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
                   child: GlassCard(
-                    borderColor: context.colors.precisionBlue.withOpacity(0.3),
+                    borderColor: context.colors.precisionBlue.withValues(alpha: 0.3),
                     padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
                     child: isVersus
                         ? _buildVersusScoreboard(game)
@@ -121,13 +120,13 @@ class _LivePracticeScreenState extends State<LivePracticeScreen>
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
                       color: game.isTeamATurn
-                          ? context.colors.precisionBlue.withOpacity(0.12)
-                          : context.colors.persistentRed.withOpacity(0.12),
+                          ? context.colors.precisionBlue.withValues(alpha: 0.12)
+                          : context.colors.persistentRed.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: game.isTeamATurn
-                            ? context.colors.precisionBlue.withOpacity(0.4)
-                            : context.colors.persistentRed.withOpacity(0.4),
+                            ? context.colors.precisionBlue.withValues(alpha: 0.4)
+                            : context.colors.persistentRed.withValues(alpha: 0.4),
                       ),
                     ),
                     child: Row(
@@ -146,7 +145,7 @@ class _LivePracticeScreenState extends State<LivePracticeScreen>
                               const SizedBox(width: 8),
                               Flexible(
                                 child: Text(
-                                  '${game.activeTeamName} — SHOOT!',
+                                  '${game.activeTeamName}, it\'s your turn!',
                                   style: TallyTextStyles.heading3(context).copyWith(
                                     color: game.isTeamATurn
                                         ? context.colors.precisionBlue
@@ -172,8 +171,9 @@ class _LivePracticeScreenState extends State<LivePracticeScreen>
                     ),
                   ),
 
-                // ── Target Diagram (fills remaining space) ──
-                Expanded(
+                // ── Target Diagram (fixed 260 px — same on all screens) ──
+                SizedBox(
+                  height: 260,
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 6),
                     child: TargetDiagram(highlightedZone: game.lastHitZone),
@@ -244,7 +244,7 @@ class _LivePracticeScreenState extends State<LivePracticeScreen>
                                           decoration: BoxDecoration(
                                             color: i < (game.shotCount ~/ 3).clamp(0, 5)
                                                 ? context.colors.precisionBlue
-                                                : context.colors.precisionBlue25.withOpacity(0.3),
+                                                : context.colors.precisionBlue25.withValues(alpha: 0.3),
                                             borderRadius: BorderRadius.circular(2),
                                           ),
                                         ),
@@ -309,7 +309,7 @@ class _LivePracticeScreenState extends State<LivePracticeScreen>
               Positioned.fill(
                 child: IgnorePointer(
                   child: Container(
-                    color: context.colors.persistentRed.withOpacity(0.15),
+                    color: context.colors.persistentRed.withValues(alpha: 0.15),
                     child: Center(
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
@@ -320,7 +320,7 @@ class _LivePracticeScreenState extends State<LivePracticeScreen>
                             color: context.colors.persistentRed, width: 2),
                           boxShadow: [
                             BoxShadow(
-                              color: context.colors.persistentRed.withOpacity(0.3),
+                              color: context.colors.persistentRed.withValues(alpha: 0.3),
                               blurRadius: 30, spreadRadius: 5,
                             ),
                           ],
@@ -423,7 +423,7 @@ class _LivePracticeScreenState extends State<LivePracticeScreen>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  border: Border.all(color: context.colors.optimisticYellow.withOpacity(0.5)),
+                  border: Border.all(color: context.colors.optimisticYellow.withValues(alpha: 0.5)),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(game.timerDisplay,
@@ -501,7 +501,7 @@ class _ShotCountdownRing extends StatelessWidget {
                   color: color,
                 ),
               ),
-              Text('s', style: TextStyle(fontSize: 9, color: color.withOpacity(0.7))),
+              Text('s', style: TextStyle(fontSize: 9, color: color.withValues(alpha: 0.7))),
             ],
           ),
         ],

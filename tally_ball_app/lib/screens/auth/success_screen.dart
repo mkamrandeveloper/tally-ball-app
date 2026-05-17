@@ -13,17 +13,20 @@ class SuccessScreen extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: GlassCard(
-            borderColor: context.colors.precisionBlue.withOpacity(0.2),
+            borderColor: context.colors.precisionBlue.withValues(alpha: 0.2),
             padding: const EdgeInsets.all(40),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Spacer(),
+                // Logo
+                const TallyLogo(height: 44),
+                const SizedBox(height: 32),
                 // Medal icon
                 Container(
                   width: 80, height: 80,
                   decoration: BoxDecoration(
-                    color: context.colors.optimisticYellow.withOpacity(0.15),
+                    color: context.colors.optimisticYellow.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(Icons.military_tech, color: context.colors.optimisticYellow, size: 48),
@@ -35,10 +38,12 @@ class SuccessScreen extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text("Let's get to work!", style: TallyTextStyles.scriptAccent(context).copyWith(fontSize: 18)),
                 const Spacer(),
+                // Route to onboarding target selection first
                 TallyButton(
-                  text: 'GET STARTED',
-                  icon: Icons.arrow_forward,
-                  onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/home', (r) => false),
+                  text: 'SET MY TARGET',
+                  icon: Icons.gps_fixed,
+                  onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                    context, '/onboarding-target', (r) => false),
                 ),
                 const SizedBox(height: 32),
               ],

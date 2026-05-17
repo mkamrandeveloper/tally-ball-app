@@ -15,10 +15,17 @@ enum DifficultyLevel {
   final int maxScore;
 
   String get rangeDisplay {
-    if (minScore >= 1000) {
-      return '${(minScore / 1000).toStringAsFixed(0)}k-${(maxScore / 1000).toStringAsFixed(0)}k';
+    String fmt(int n) {
+      // Format with comma separators
+      final s = n.toString();
+      final buf = StringBuffer();
+      for (int i = 0; i < s.length; i++) {
+        if (i > 0 && (s.length - i) % 3 == 0) buf.write(',');
+        buf.write(s[i]);
+      }
+      return buf.toString();
     }
-    return '$minScore-$maxScore';
+    return '${fmt(minScore)}-${fmt(maxScore)}';
   }
 }
 

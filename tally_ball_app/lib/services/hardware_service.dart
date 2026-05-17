@@ -11,12 +11,12 @@ class HardwareService {
   HardwareService._internal();
 
   BluetoothDevice? _connectedDevice;
-  StreamSubscription<List<ScanResult>>? _scanSubscription;
+
   StreamSubscription<BluetoothConnectionState>? _stateSubscription;
   
   // Custom UUIDs - Replace these with your actual hardware UUIDs
-  static const String SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
-  static const String CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
+  static const String serviceUuid = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
+  static const String characteristicUuid = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
 
   BluetoothDevice? get connectedDevice => _connectedDevice;
 
@@ -62,9 +62,9 @@ class HardwareService {
       List<BluetoothService> services = await device.discoverServices();
       for (var service in services) {
         // Look for our specific service
-        if (service.uuid.toString().toLowerCase() == SERVICE_UUID.toLowerCase()) {
+        if (service.uuid.toString().toLowerCase() == serviceUuid.toLowerCase()) {
           for (var characteristic in service.characteristics) {
-            if (characteristic.uuid.toString().toLowerCase() == CHARACTERISTIC_UUID.toLowerCase()) {
+            if (characteristic.uuid.toString().toLowerCase() == characteristicUuid.toLowerCase()) {
               // Enable notifications
               await characteristic.setNotifyValue(true);
               characteristic.lastValueStream.listen((value) {

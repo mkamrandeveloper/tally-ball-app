@@ -37,13 +37,11 @@ class AuthService {
   // Sign in with Google
   Future<UserCredential?> signInWithGoogle() async {
     try {
-      // Use singleton instance and authenticate() as per v7.0.0 breaking changes
-      final gsi.GoogleSignInAccount? googleUser = await gsi.GoogleSignIn.instance.authenticate();
-
-      if (googleUser == null) return null; // User cancelled
+      // Use singleton instance and authenticate()
+      final googleUser = await gsi.GoogleSignIn.instance.authenticate();
 
       // Obtain the auth details from the request
-      final gsi.GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final gsi.GoogleSignInAuthentication googleAuth = googleUser.authentication;
       
       // Create a new credential
       final AuthCredential credential = GoogleAuthProvider.credential(
@@ -53,7 +51,6 @@ class AuthService {
       // Once signed in, return the UserCredential
       return await _auth.signInWithCredential(credential);
     } catch (e) {
-      print('Google Sign-In Error: $e');
       rethrow;
     }
   }

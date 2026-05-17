@@ -28,15 +28,9 @@ class _TimeLimitScreenState extends State<TimeLimitScreen> {
     return Scaffold(
       backgroundColor: context.colors.bgPrimary,
       appBar: AppBar(
-        title: const Text('PRACTICE_MODE'),
-        titleTextStyle: TallyTextStyles.heading3(context).copyWith(color: context.colors.precisionBlue),
+        title: const TallyLogo(height: 36),
+        centerTitle: true,
         leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context)),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: CircleAvatar(radius: 18, backgroundColor: context.colors.bgCard, child: Icon(Icons.person, size: 20, color: context.colors.textSecondary)),
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -96,7 +90,7 @@ class _TimeLimitScreenState extends State<TimeLimitScreen> {
                       },
                       child: Container(
                         decoration: BoxDecoration(
-                          color: isSelected ? context.colors.precisionBlue.withOpacity(0.08) : context.colors.bgCard,
+                          color: isSelected ? context.colors.precisionBlue.withValues(alpha: 0.08) : context.colors.bgCard,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: isSelected ? context.colors.precisionBlue : context.colors.border,
@@ -141,7 +135,7 @@ class _TimeLimitScreenState extends State<TimeLimitScreen> {
                     },
                     child: Container(
                       decoration: BoxDecoration(
-                        color: _isCustom ? context.colors.precisionBlue.withOpacity(0.08) : context.colors.bgCard,
+                        color: _isCustom ? context.colors.precisionBlue.withValues(alpha: 0.08) : context.colors.bgCard,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: _isCustom ? context.colors.precisionBlue : context.colors.border,
@@ -165,7 +159,7 @@ class _TimeLimitScreenState extends State<TimeLimitScreen> {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          Text('CUSTOM', style: TextStyle(
+                          Text('MIN', style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 2,
@@ -182,7 +176,7 @@ class _TimeLimitScreenState extends State<TimeLimitScreen> {
               const SizedBox(height: 16),
               Row(
                 children: [
-                  Text('Custom Time (1-60 mins):', style: TallyTextStyles.bodyMedium(context)),
+                  Text('Time (1-60 mins):', style: TallyTextStyles.bodyMedium(context)),
                   const SizedBox(width: 16),
                   Expanded(
                     child: TextField(

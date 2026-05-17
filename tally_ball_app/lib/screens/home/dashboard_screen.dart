@@ -3,12 +3,13 @@ import 'package:provider/provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/common.dart';
 import '../../services/game_service.dart';
-import '../../models/game_models.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/auth_service.dart';
 import '../../services/database_service.dart';
 import '../profile/user_profile_screen.dart';
+
+enum _HistoryFilter { all, practice, match, friends }
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -42,7 +43,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     center: const Alignment(0.5, -0.2),
                     radius: 1.2,
                     colors: [
-                      context.colors.precisionBlue.withOpacity(0.15),
+                      context.colors.precisionBlue.withValues(alpha: 0.15),
                       context.colors.bgPrimary,
                       context.colors.bgPrimary,
                     ],
@@ -92,14 +93,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               IconButton(
                 icon: Icon(Icons.menu, color: context.colors.textPrimary),
-                onPressed: () {},
+                onPressed: () => _showDrawer(context),
               ),
-              Text('TALLY BALL', style: TallyTextStyles.heading3(context).copyWith(color: context.colors.precisionBlue)),
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: context.colors.bgCard,
-                child: Icon(Icons.person, color: context.colors.textSecondary, size: 22),
-              ),
+              const TallyLogo(height: 36),
+              const SizedBox(width: 48), // balance the hamburger
             ],
           ),
           const SizedBox(height: 24),
@@ -132,7 +129,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('CURRENT TALLY', style: TallyTextStyles.labelYellow(context)),
+                        Text('PREVIOUS TALLY SCORE', style: TallyTextStyles.labelYellow(context)),
                         Text(timeStr, style: TallyTextStyles.bodySmall(context)),
                       ],
                     ),
@@ -165,7 +162,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text('VIEW HISTORY', style: TallyTextStyles.label(context).copyWith(color: context.colors.optimisticYellow, fontSize: 12)),
+                            Text('VIEW TALLY SCORE HISTORY', style: TallyTextStyles.label(context).copyWith(color: context.colors.optimisticYellow, fontSize: 12)),
                             const SizedBox(width: 8),
                             Icon(Icons.arrow_forward, color: context.colors.optimisticYellow, size: 16),
                           ],
@@ -215,8 +212,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               
               String aiMessage = 'Welcome to Tally Ball! Start your first session to begin tracking your performance metrics.';
               if (hasData) {
-                final lastScore = docs.first.data()['score'] ?? 0;
-                aiMessage = 'Last session: $lastScore pts. Keep practicing to improve your accuracy and reach the next tier.';
+                final scores = docs.map((d) => (d.data()['score'] ?? 0) as int).toList();
+                final lastScore = scores.first;
+                final avg = scores.isNotEmpty ? scores.reduce((a, b) => a + b) ~/ scores.length : 0;
+                final best = scores.isNotEmpty ? scores.reduce((a, b) => a > b ? a : b) : 0;
+                final trend = scores.length > 1 && scores.first > scores[1] ? '📈 improving' : '📊 consistent';
+                aiMessage = 'Last session: $lastScore pts · Avg: $avg pts · Best: $best pts\nPerformance trend: $trend. Keep targeting corners to maximize your tally score.';
               }
 
               return Column(
@@ -274,7 +275,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       margin: const EdgeInsets.symmetric(horizontal: 4),
                                       height: 10,
                                       decoration: BoxDecoration(
-                                        color: context.colors.precisionBlue25.withOpacity(0.1),
+                                        color: context.colors.precisionBlue25.withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                     ),
@@ -294,7 +295,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       ),
                                     ),
                                   );
-                                }).toList(),
+                                }),
                                 // Fill remaining slots if less than 5
                                 for (int i = 0; i < (5 - docs.length).clamp(0, 5); i++)
                                   Expanded(child: const SizedBox()),
@@ -316,10 +317,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _modeCard(String label, IconData icon, Color color, VoidCallback onTap) {
     // Determine the tint to use for the card background
-    Color cardBg = color.withOpacity(0.08);
-    if (color == context.colors.precisionBlue) cardBg = context.colors.precisionBlue25.withOpacity(0.3);
-    if (color == context.colors.persistentRed) cardBg = context.colors.persistentRed25.withOpacity(0.3);
-    if (color == context.colors.optimisticYellow) cardBg = context.colors.optimisticYellow25.withOpacity(0.3);
+    Color cardBg = color.withValues(alpha: 0.08);
+    if (color == context.colors.precisionBlue) cardBg = context.colors.precisionBlue25.withValues(alpha: 0.3);
+    if (color == context.colors.persistentRed) cardBg = context.colors.persistentRed25.withValues(alpha: 0.3);
+    if (color == context.colors.optimisticYellow) cardBg = context.colors.optimisticYellow25.withValues(alpha: 0.3);
 
     return Expanded(
       child: GestureDetector(
@@ -329,16 +330,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
           decoration: BoxDecoration(
             color: cardBg,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: color.withOpacity(0.2)),
+            border: Border.all(color: color.withValues(alpha: 0.2)),
           ),
           child: Column(
             children: [
               Container(
                 width: 48, height: 48,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: color.withOpacity(0.2)),
+                  border: Border.all(color: color.withValues(alpha: 0.2)),
                 ),
                 child: Icon(icon, color: color, size: 24),
               ),
@@ -357,12 +358,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildModesTab() {
-    return _PracticeSetupTab(onStart: () {
-      final game = context.read<GameService>();
-      game.startPractice();
-      Navigator.pushNamed(context, '/live-practice');
-    });
+    // Modes tab: show mode selection cards (Select Total Target is handled in onboarding)
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(icon: Icon(Icons.menu, color: context.colors.textPrimary), onPressed: () => _showDrawer(context)),
+              const TallyLogo(height: 36),
+              const SizedBox(width: 48),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Text('PRACTICE MODE', style: TallyTextStyles.heading2(context)),
+          const SizedBox(height: 8),
+          Text('Solo training session against the targets.', style: TallyTextStyles.bodyMedium(context)),
+          const SizedBox(height: 16),
+          _PracticeSetupTab(onStart: () {
+            final game = context.read<GameService>();
+            game.startPractice();
+            Navigator.pushNamed(context, '/live-practice');
+          }),
+        ],
+      ),
+    );
   }
+
+  _HistoryFilter _historyFilter = _HistoryFilter.all;
 
   Widget _buildHistoryTab() {
     final user = _authService.currentUser;
@@ -371,19 +397,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
       stream: _dbService.getGameSessionsStream(user.uid),
       builder: (context, snapshot) {
-        final docs = snapshot.data?.docs ?? [];
-        int totalSessions = docs.length;
+        final allDocs = snapshot.data?.docs ?? [];
+
+        // Filter
+        final docs = allDocs.where((doc) {
+          final mode = (doc.data()['mode'] ?? 'practice') as String;
+          switch (_historyFilter) {
+            case _HistoryFilter.practice: return mode == 'practice';
+            case _HistoryFilter.match: return mode == 'match';
+            case _HistoryFilter.friends: return mode == 'versus';
+            case _HistoryFilter.all: return true;
+          }
+        }).toList();
+
+        int totalSessions = allDocs.length;
         int avgScore = 0;
         int allTimeHigh = 0;
-        
-        if (docs.isNotEmpty) {
+        if (allDocs.isNotEmpty) {
           int sum = 0;
-          for (var doc in docs) {
+          for (var doc in allDocs) {
             final score = doc.data()['score'] ?? 0;
             sum += score as int;
             if (score > allTimeHigh) allTimeHigh = score;
           }
-          avgScore = sum ~/ docs.length;
+          avgScore = sum ~/ allDocs.length;
         }
 
         return SingleChildScrollView(
@@ -395,79 +432,66 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  IconButton(icon: Icon(Icons.menu, color: context.colors.textPrimary), onPressed: () {}),
-                  Text('ELITE PERFORMANCE', style: TallyTextStyles.heading3(context).copyWith(color: context.colors.optimisticYellow)),
-                  CircleAvatar(radius: 20, backgroundColor: context.colors.bgCard, child: Icon(Icons.person, size: 22, color: context.colors.textSecondary)),
+                  IconButton(icon: Icon(Icons.menu, color: context.colors.textPrimary), onPressed: () => _showDrawer(context)),
+                  const TallyLogo(height: 36),
+                  const SizedBox(width: 48),
                 ],
               ),
-              const SizedBox(height: 24),
-              Text('PERFORMANCE SUMMARY', style: TallyTextStyles.heading2(context)),
               const SizedBox(height: 16),
-              _statCard('ALL-TIME HIGH', NumberFormat('#,###').format(allTimeHigh), 'Your best session'),
+              Text('PERFORMANCE SUMMARY', style: TallyTextStyles.heading2(context)),
               const SizedBox(height: 12),
+              _statCard('ALL-TIME HIGH', NumberFormat('#,###').format(allTimeHigh), 'Your best session'),
+              const SizedBox(height: 10),
               Row(
                 children: [
-                  Expanded(child: _statCard('TOTAL SESSIONS', '$totalSessions', 'Total games played', borderColor: context.colors.optimisticYellow)),
-                  const SizedBox(width: 12),
+                  Expanded(child: _statCard('TOTAL SESSIONS', '$totalSessions', 'Games played', borderColor: context.colors.optimisticYellow)),
+                  const SizedBox(width: 10),
                   Expanded(child: _statCard('AVERAGE SCORE', NumberFormat('#,###').format(avgScore), 'Across all sessions', borderColor: context.colors.persistentRed)),
                 ],
               ),
-              const SizedBox(height: 24),
-              // Dummy graph to fill space and look like a premium telemetry app
-              GlassCard(
-                borderColor: context.colors.precisionBlue.withOpacity(0.1),
-                child: Container(
-                  height: 120,
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('PERFORMANCE TREND', style: TallyTextStyles.bodySmall(context)),
-                      Expanded(
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: List.generate(12, (index) {
-                              return Container(
-                                width: 8,
-                                height: 20.0 + (index * 7 % 60),
-                                decoration: BoxDecoration(
-                                  color: context.colors.precisionBlue.withOpacity(0.4),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              );
-                            }),
-                          ),
+              const SizedBox(height: 20),
+              // Sort filter chips
+              Text('SORT BY SESSION TYPE', style: TallyTextStyles.label(context)),
+              const SizedBox(height: 10),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: _HistoryFilter.values.map((f) {
+                    final isActive = _historyFilter == f;
+                    final labels = {_HistoryFilter.all: 'ALL', _HistoryFilter.practice: 'PRACTICE', _HistoryFilter.match: 'MATCH', _HistoryFilter.friends: 'FRIENDS VS'};
+                    return GestureDetector(
+                      onTap: () => setState(() => _historyFilter = f),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        margin: const EdgeInsets.only(right: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: isActive ? context.colors.precisionBlue : context.colors.bgCard,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: isActive ? context.colors.precisionBlue : context.colors.border),
                         ),
+                        child: Text(labels[f]!, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: isActive ? Colors.white : context.colors.textSecondary, letterSpacing: 1)),
                       ),
-                    ],
-                  ),
+                    );
+                  }).toList(),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
               GlassCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('SESSION HISTORY', style: TallyTextStyles.heading3(context)),
-                      ],
-                    ),
+                    Text('SESSION HISTORY', style: TallyTextStyles.heading3(context)),
                     const SizedBox(height: 16),
-                    if (docs.isEmpty) 
+                    if (docs.isEmpty)
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20),
                         child: Center(child: Text('No sessions recorded', style: TallyTextStyles.bodySmall(context))),
                       )
                     else
-                      for (var doc in docs.take(10)) 
+                      for (var doc in docs.take(10))
                         _historyRow(
-                          doc.data()['timestamp'] != null 
+                          doc.data()['timestamp'] != null
                               ? DateFormat('MMM dd, yyyy').format((doc.data()['timestamp'] as Timestamp).toDate())
                               : 'Unknown',
                           (doc.data()['mode'] ?? 'practice').toString().toUpperCase(),
@@ -480,7 +504,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
         );
-      }
+      },
     );
   }
 
@@ -543,32 +567,50 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return UserProfileScreen(useScaffold: false);
   }
 
-  Widget _profileField(String label, String value, IconData icon) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: TallyTextStyles.bodySmall(context)),
-          const SizedBox(height: 4),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              color: context.colors.bgSurface,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: context.colors.border),
-            ),
-            child: Row(
-              children: [
-                Icon(icon, color: context.colors.textTertiary, size: 18),
-                const SizedBox(width: 12),
-                Text(value, style: TallyTextStyles.bodyLarge(context)),
-              ],
-            ),
+  void _showDrawer(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: context.colors.bgCard,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Drag handle indicator
+              Container(
+                width: 40, height: 4,
+                decoration: BoxDecoration(
+                  color: context.colors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 20),
+              const TallyLogo(height: 32),
+              const SizedBox(height: 16),
+              _drawerItem(ctx, Icons.home_outlined, 'HOME', () => setState(() => _navIndex = 0)),
+              _drawerItem(ctx, Icons.gps_fixed, 'MODES', () => setState(() => _navIndex = 1)),
+              _drawerItem(ctx, Icons.bar_chart, 'HISTORY', () => setState(() => _navIndex = 2)),
+              _drawerItem(ctx, Icons.wifi, 'HARDWARE', () => Navigator.pushNamed(ctx, '/hardware')),
+              _drawerItem(ctx, Icons.settings, 'SETTINGS', () => Navigator.pushNamed(ctx, '/settings')),
+              _drawerItem(ctx, Icons.help_outline, 'FAQ / HELP', () => Navigator.pushNamed(ctx, '/faq')),
+              const SizedBox(height: 8),
+            ],
           ),
-        ],
+        ),
       ),
+    );
+  }
+
+  Widget _drawerItem(BuildContext ctx, IconData icon, String label, VoidCallback onTap) {
+    return ListTile(
+      leading: Icon(icon, color: context.colors.precisionBlue, size: 22),
+      title: Text(label, style: TallyTextStyles.label(context).copyWith(color: context.colors.textPrimary, fontSize: 13)),
+      onTap: () { Navigator.pop(ctx); onTap(); },
+      contentPadding: EdgeInsets.zero,
     );
   }
 }
@@ -580,39 +622,15 @@ class _PracticeSetupTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final game = context.watch<GameService>();
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(icon: Icon(Icons.menu, color: context.colors.textPrimary), onPressed: () {}),
-              Text('TALLY BALL', style: TallyTextStyles.heading3(context).copyWith(color: context.colors.optimisticYellow)),
-              CircleAvatar(radius: 20, backgroundColor: context.colors.bgCard, child: Icon(Icons.person, size: 22, color: context.colors.textSecondary)),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text('SELECT TOTAL\nTALLY TARGET', style: TallyTextStyles.heading1(context)),
+          Text('START PRACTICE', style: TallyTextStyles.heading2(context)),
           const SizedBox(height: 8),
-          Text('Calibrate your training parameters\nbefore initiating sequence.', style: TallyTextStyles.bodyMedium(context)),
-          const SizedBox(height: 8),
-          Divider(color: context.colors.border),
-          const SizedBox(height: 8),
-          // Difficulty grid
-          ...DifficultyLevel.values.map((d) => Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: SelectionCard(
-              title: d.name,
-              subtitle: d.rangeDisplay,
-              isSelected: game.difficulty == d,
-              onTap: () => game.setDifficulty(d),
-              selectedBorderColor: d == DifficultyLevel.elite ? context.colors.optimisticYellow : null,
-            ),
-          )),
+          Text('Configure targets and time limit before beginning.', style: TallyTextStyles.bodyMedium(context)),
           const SizedBox(height: 16),
           TallyButton(text: 'NEXT: SELECT TARGETS', icon: Icons.arrow_forward, onPressed: () {
             Navigator.pushNamed(context, '/target-setup');

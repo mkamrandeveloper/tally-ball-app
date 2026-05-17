@@ -21,15 +21,9 @@ class _VersusSetupScreenState extends State<VersusSetupScreen> {
     return Scaffold(
       backgroundColor: context.colors.bgPrimary,
       appBar: AppBar(
-        title: const Text('VERSUS MODE'),
-        titleTextStyle: TallyTextStyles.heading3(context),
+        title: const TallyLogo(height: 36),
+        centerTitle: true,
         leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context)),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: CircleAvatar(radius: 18, backgroundColor: context.colors.bgCard, child: Icon(Icons.person, size: 20, color: context.colors.textSecondary)),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -42,9 +36,9 @@ class _VersusSetupScreenState extends State<VersusSetupScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: context.colors.persistentRed.withOpacity(0.08),
+                color: context.colors.persistentRed.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: context.colors.persistentRed.withOpacity(0.3)),
+                border: Border.all(color: context.colors.persistentRed.withValues(alpha: 0.3)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,7 +72,7 @@ class _VersusSetupScreenState extends State<VersusSetupScreen> {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  border: Border.all(color: context.colors.optimisticYellow.withOpacity(0.3)),
+                  border: Border.all(color: context.colors.optimisticYellow.withValues(alpha: 0.3)),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text('VS', style: TallyTextStyles.heading2(context).copyWith(color: context.colors.textTertiary, fontStyle: FontStyle.italic)),
@@ -105,7 +99,7 @@ class _VersusSetupScreenState extends State<VersusSetupScreen> {
                             margin: const EdgeInsets.symmetric(horizontal: 4),
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             decoration: BoxDecoration(
-                              color: isSelected ? context.colors.precisionBlue.withOpacity(0.1) : context.colors.bgSurface,
+                              color: isSelected ? context.colors.precisionBlue.withValues(alpha: 0.1) : context.colors.bgSurface,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(color: isSelected ? context.colors.precisionBlue : context.colors.border),
                             ),
@@ -178,7 +172,7 @@ class _VersusSetupScreenState extends State<VersusSetupScreen> {
             const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerRight,
-              child: Text("Keep it tight!", style: TallyTextStyles.scriptAccent(context)),
+              child: Text("You've got this!", style: TallyTextStyles.scriptAccent(context)),
             ),
             const SizedBox(height: 16),
             TallyButton(
@@ -199,7 +193,7 @@ class _VersusSetupScreenState extends State<VersusSetupScreen> {
   Widget _teamCard(String teamName, String colorLabel, Color color, List<Player> players, bool isTeamA) {
     final game = context.read<GameService>();
     return GlassCard(
-      borderColor: color.withOpacity(0.3),
+      borderColor: color.withValues(alpha: 0.3),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -210,7 +204,7 @@ class _VersusSetupScreenState extends State<VersusSetupScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
+                  color: color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(colorLabel, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1)),
@@ -224,7 +218,7 @@ class _VersusSetupScreenState extends State<VersusSetupScreen> {
               children: [
                 Container(
                   width: 28, height: 28,
-                  decoration: BoxDecoration(color: color.withOpacity(0.2), borderRadius: BorderRadius.circular(6)),
+                  decoration: BoxDecoration(color: color.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(6)),
                   child: Center(child: Text(
                     String.fromCharCode(65 + entry.key),
                     style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 13),

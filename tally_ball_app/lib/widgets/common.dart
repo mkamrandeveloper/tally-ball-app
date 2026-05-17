@@ -1,6 +1,24 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
 
+/// Official Tally Ball logo widget — use instead of plain "TALLY BALL" text
+class TallyLogo extends StatelessWidget {
+  final double height;
+  final bool useDark;
+
+  const TallyLogo({super.key, this.height = 32, this.useDark = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    // logo_dark.png is the dark-background version; logo.png for light bg
+    final asset = (brightness == Brightness.dark || useDark)
+        ? 'assets/images/logo_dark.png'
+        : 'assets/images/logo.png';
+    return Image.asset(asset, height: height, fit: BoxFit.contain);
+  }
+}
+
 /// Glassmorphism card used across the app
 class GlassCard extends StatelessWidget {
   final Widget child;
@@ -39,7 +57,7 @@ class GlassCard extends StatelessWidget {
 /// Primary action button
 class TallyButton extends StatelessWidget {
   final String text;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final IconData? icon;
   final Color? color;
   final bool isOutlined;
@@ -49,7 +67,7 @@ class TallyButton extends StatelessWidget {
   const TallyButton({
     super.key,
     required this.text,
-    required this.onPressed,
+    this.onPressed,
     this.icon,
     this.color,
     this.isOutlined = false,
@@ -125,6 +143,9 @@ class TallyTextField extends StatelessWidget {
   final bool obscureText;
   final TextEditingController? controller;
   final String? Function(String?)? validator;
+  final String? errorText;
+  final TextInputType? keyboardType;
+  final void Function(String)? onChanged;
 
   const TallyTextField({
     super.key,
@@ -135,10 +156,14 @@ class TallyTextField extends StatelessWidget {
     this.obscureText = false,
     this.controller,
     this.validator,
+    this.errorText,
+    this.keyboardType,
+    this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
+    final hasError = errorText != null && errorText!.isNotEmpty;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -148,15 +173,79 @@ class TallyTextField extends StatelessWidget {
           controller: controller,
           obscureText: obscureText,
           validator: validator,
+          keyboardType: keyboardType,
+          onChanged: onChanged,
           style: TextStyle(color: context.colors.textPrimary, fontSize: 14),
           decoration: InputDecoration(
             hintText: hint,
             prefixIcon: prefixIcon != null
-                ? Icon(prefixIcon, color: context.colors.textTertiary, size: 20)
+                ? Icon(
+                    prefixIcon,
+                    color: hasError
+                        ? context.colors.persistentRed
+                        : context.colors.textTertiary,
+                    size: 20,
+                  )
                 : null,
             suffixIcon: suffixIcon,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: hasError
+                    ? context.colors.persistentRed.withValues(alpha: 0.7)
+                    : context.colors.border,
+                width: hasError ? 1.5 : 1,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: hasError
+                    ? context.colors.persistentRed
+                    : context.colors.precisionBlue,
+                width: 1.5,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: context.colors.persistentRed,
+                width: 1.5,
+              ),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: context.colors.persistentRed,
+                width: 1.5,
+              ),
+            ),
           ),
         ),
+        if (hasError) ...[
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 13,
+                color: context.colors.persistentRed,
+              ),
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(
+                  errorText!,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: context.colors.persistentRed,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ],
     );
   }
@@ -196,7 +285,7 @@ class TallyBottomNav extends StatelessWidget {
               duration: const Duration(milliseconds: 200),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: isActive ? context.colors.precisionBlue25.withOpacity(0.3) : Colors.transparent,
+                color: isActive ? context.colors.precisionBlue25.withValues(alpha: 0.3) : Colors.transparent,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
@@ -258,7 +347,7 @@ class SelectionCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isSelected ? borderCol.withOpacity(0.08) : context.colors.bgCard,
+          color: isSelected ? borderCol.withValues(alpha: 0.08) : context.colors.bgCard,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? borderCol : context.colors.border,
